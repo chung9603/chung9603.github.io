@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nguyễn Tuấn Chung — Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+/* ── RESET & VARS ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --text:    #1d1d1f;
+  --text2:   #6e6e73;
+  --text3:   #a1a1a6;
+  --border:  #d2d2d7;
+  --bg:      #ffffff;
+  --bg2:     #f5f5f7;
+  --blue:    #0071e3;
+  --red:     #ff3b30;
+  --green:   #34c759;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; color: var(--text); background: var(--bg); overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+img { display: block; width: 100%; }
+
+/* ── NAV ──────────────────────────────────────── */
+nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+}
+.nav-logo { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--text3); transition: color .2s; }
+.nav-links a:hover { color: var(--text); }
+
+/* ── HERO ─────────────────────────────────────── */
+.hero {
+  position: relative; height: 90vh; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.hero img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,10,8,.72) 0%, transparent 55%);
+}
+.hero-content {
+  position: relative; z-index: 2;
+  padding: 3rem 2.5rem; color: #fff;
+}
+.hero-title {
+  font-size: 56px; font-weight: 600;
+  line-height: 1.07; letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+}
+.hero-sub { font-size: 17px; font-weight: 400; opacity: .8; }
+
+/* ── GALLERY ──────────────────────────────────── */
+.gallery-section { padding: 3rem 2.5rem; }
+.gallery-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 2rem;
+}
+.section-title { font-size: 26px; font-weight: 600; letter-spacing: -0.015em; }
+.gallery-count { font-size: 13px; color: var(--text3); }
+
+.main-tabs {
+  display: flex; margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+.main-tab {
+  font-size: 15px; font-weight: 500; color: var(--text3);
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  padding: .6rem 0; margin-right: 2.5rem; margin-bottom: -0.5px;
+  cursor: pointer; font-family: inherit; transition: all .2s;
+}
+.main-tab.active { color: var(--text); border-bottom-color: var(--text); }
+.main-tab:hover  { color: var(--text); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Desktop: 4 cột */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.g-item {
+  aspect-ratio: 3/4; overflow: hidden;
+  position: relative; cursor: pointer;
+}
+.g-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+.g-item:hover img { transform: scale(1.02); }
+.frame-id {
+  position: absolute; bottom: 8px; right: 9px;
+  font-family: monospace; font-size: 9px;
+  color: rgba(255,255,255,.5);
+  opacity: 0; transition: opacity .2s;
+}
+.g-item:hover .frame-id { opacity: 1; }
+
+/* ── LIGHTBOX ─────────────────────────────────── */
+.lightbox {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.96); z-index: 999;
+  align-items: center; justify-content: center;
+}
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 88vw; max-height: 92vh; object-fit: contain; width: auto; }
+.lb-close {
+  position: absolute; top: 1.25rem; right: 1.5rem;
+  color: #fff; font-size: 24px; cursor: pointer;
+  opacity: .5; transition: opacity .2s;
+}
+.lb-close:hover { opacity: 1; }
+.lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  color: #fff; font-size: 36px; cursor: pointer;
+  opacity: .35; transition: opacity .2s;
+  padding: 1rem; user-select: none;
+}
+.lb-nav:hover { opacity: .9; }
+#lb-prev { left: .5rem; }
+#lb-next { right: .5rem; }
+.lb-counter {
+  position: absolute; bottom: 1.25rem;
+  left: 50%; transform: translateX(-50%);
+  font-size: 11px; letter-spacing: .05em;
+  color: rgba(255,255,255,.4); font-family: monospace;
+}
+
+/* ── ABOUT ────────────────────────────────────── */
+.about-section {
+  padding: 3rem 2.5rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 3rem; align-items: start;
+}
+.about-photo { aspect-ratio: 3/4; overflow: hidden; }
+.about-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.about-eyebrow { font-size: 13px; font-weight: 400; color: var(--text3); margin-bottom: .5rem; }
+.about-name { font-size: 30px; font-weight: 600; letter-spacing: -0.015em; margin-bottom: .25rem; }
+.about-role { font-size: 16px; font-weight: 400; color: var(--text2); margin-bottom: 1.5rem; }
+.about-bio  { font-size: 15px; font-weight: 400; line-height: 1.6; color: var(--text2); margin-bottom: 1.75rem; }
+.stats {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.stat { border-top: 1px solid var(--border); padding-top: .75rem; }
+.stat-n { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; display: block; margin-bottom: 2px; }
+.stat-l { font-size: 12px; font-weight: 400; color: var(--text3); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 12px; font-weight: 400; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; color: var(--text2); }
+
+/* ── BOOKING ──────────────────────────────────── */
+.booking-section {
+  padding: 3rem 2.5rem;
+  border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+}
+.booking-title { font-size: 26px; font-weight: 600; letter-spacing: -0.015em; }
+.booking-desc  { font-size: 15px; font-weight: 400; line-height: 1.6; color: var(--text2); margin: .75rem 0 1.75rem; }
+.contact-list  { display: flex; flex-direction: column; gap: .85rem; }
+.c-line { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--text2); }
+.c-line i { font-size: 15px; color: var(--text3); }
+.form-group { margin-bottom: .9rem; }
+.form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%; background: #fff;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 14px; font-family: inherit;
+  font-size: 15px; font-weight: 400; color: var(--text);
+  outline: none; transition: border-color .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--blue); }
+.form-group textarea { height: 88px; resize: none; }
+.form-group input.error,
+.form-group textarea.error { border-color: var(--red); }
+.submit-btn {
+  width: 100%; margin-top: 1.1rem; padding: 13px;
+  background: var(--blue); color: #fff; border: none;
+  border-radius: 980px; font-family: inherit;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 6px;
+  transition: background .2s;
+}
+.submit-btn:hover    { background: #0077ed; }
+.submit-btn:disabled { background: var(--text3); cursor: not-allowed; }
+.form-msg { margin-top: .75rem; font-size: 13px; text-align: center; display: none; }
+.form-msg.success { color: var(--green); display: block; }
+.form-msg.error   { color: var(--red);   display: block; }
+
+/* ── FOOTER ───────────────────────────────────── */
+footer {
+  padding: 1.4rem 2.5rem;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.f-logo { font-size: 14px; font-weight: 600; color: var(--text2); }
+.socials { display: flex; gap: 1.25rem; }
+.socials a { color: var(--text3); transition: color .2s; }
+.socials a:hover { color: var(--text); }
+.socials i { font-size: 17px; }
+.f-copy { font-size: 11px; color: var(--text3); }
+
+/* ── RESPONSIVE — MOBILE ──────────────────────── */
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.25rem; }
+  .nav-logo { font-size: 16px; }
+  .nav-links { gap: 1.25rem; }
+  .nav-links a { font-size: 12px; }
+
+  .hero { height: 70vh; }
+  .hero-content { padding: 2rem 1.25rem; }
+  .hero-title { font-size: 32px; }
+  .hero-sub   { font-size: 14px; }
+
+  .gallery-section { padding: 2rem 1.25rem; }
+  .gallery-header  { margin-bottom: 1.25rem; }
+  .section-title   { font-size: 20px; }
+  .main-tab        { font-size: 14px; margin-right: 1.5rem; }
+
+  /* Mobile: 3 cột */
+  .photo-grid { grid-template-columns: repeat(3, 1fr); gap: 3px; }
+
+  .about-section {
+    grid-template-columns: 1fr; gap: 1.5rem;
+    padding: 2rem 1.25rem;
+  }
+  .about-photo { max-width: 220px; }
+  .about-name  { font-size: 24px; }
+  .about-bio   { font-size: 14px; }
+
+  .booking-section {
+    grid-template-columns: 1fr; gap: 2rem;
+    padding: 2rem 1.25rem;
+  }
+  .booking-title { font-size: 20px; }
+
+  footer { padding: 1.25rem; flex-wrap: wrap; gap: .75rem; }
+  .f-copy { width: 100%; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 26px; }
+  .photo-grid { gap: 2px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Nguyễn Tuấn Chung</div>
+  <ul class="nav-links">
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#booking">Booking</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <img src="images/misc/hero.jpg" alt="Couple photography">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">Khoảnh khắc thật,<br>cảm xúc thật.</h1>
+    <p class="hero-sub">Chụp ảnh couple &amp; chân dung tại Hà Nội</p>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-section" id="gallery">
+  <div class="gallery-header">
+    <h2 class="section-title">Gallery</h2>
+    <span class="gallery-count" id="gallery-count">40 ảnh</span>
+  </div>
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="switchTab(this,'couple')">Couple</button>
+    <button class="main-tab" onclick="switchTab(this,'portrait')">Chân dung</button>
+  </div>
+
+  <!-- COUPLE -->
+  <div id="tab-couple" class="tab-panel active">
+    <div class="photo-grid" id="grid-couple"></div>
+  </div>
+
+  <!-- PORTRAIT -->
+  <div id="tab-portrait" class="tab-panel">
+    <div class="photo-grid" id="grid-portrait"></div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLb()">
+  <span class="lb-close" onclick="closeLb()"><i class="ti ti-x"></i></span>
+  <span class="lb-nav" id="lb-prev" onclick="lbNav(-1)">&#8249;</span>
+  <img id="lb-img" src="" alt="">
+  <span class="lb-nav" id="lb-next" onclick="lbNav(1)">&#8250;</span>
+  <span class="lb-counter" id="lb-counter"></span>
+</div>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-photo">
+    <img src="images/misc/about.jpg" alt="Nguyễn Tuấn Chung">
+  </div>
+  <div>
+    <p class="about-eyebrow">— Về tôi</p>
+    <h2 class="about-name">Nguyễn Tuấn Chung</h2>
+    <p class="about-role">Nhiếp ảnh gia</p>
+    <p class="about-bio">Chuyên chụp couple và chân dung. Tôi yêu thích những khoảnh khắc tự nhiên, chân thật — không dàn dựng, không giả tạo.</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-n">8</span><span class="stat-l">Bộ ảnh</span></div>
+      <div class="stat"><span class="stat-n">&lt;&nbsp;1</span><span class="stat-l">Năm kinh nghiệm</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag">Couple</span>
+      <span class="tag">Chân dung</span>
+      <span class="tag">Hà Nội</span>
+      <span class="tag">Ngoại cảnh</span>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section class="booking-section" id="booking">
+  <div>
+    <h2 class="booking-title">Liên hệ &amp; Booking</h2>
+    <p class="booking-desc">Bạn muốn lưu giữ khoảnh khắc? Hãy nhắn tin để cùng lên kế hoạch cho một buổi chụp thật đặc biệt.</p>
+    <div class="contact-list">
+      <div class="c-line"><i class="ti ti-mail"></i> nguyentuanchung963@gmail.com</div>
+      <div class="c-line"><i class="ti ti-phone"></i> 0948 166 083</div>
+      <div class="c-line"><i class="ti ti-brand-instagram"></i> @imchungg</div>
+      <div class="c-line"><i class="ti ti-map-pin"></i> Hà Nội, Việt Nam</div>
+    </div>
+  </div>
+  <div>
+    <div class="form-group">
+      <label class="form-label">Họ tên <span style="color:var(--red)">*</span></label>
+      <input type="text" id="f-name" placeholder="Tên của bạn" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email <span style="color:var(--red)">*</span></label>
+      <input type="email" id="f-email" placeholder="email@example.com" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Số điện thoại <span style="color:var(--red)">*</span></label>
+      <input type="tel" id="f-phone" placeholder="09xx xxx xxx" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Dịch vụ</label>
+      <select id="f-service">
+        <option>Chụp couple (ngoại cảnh)</option>
+        <option>Chụp couple (studio)</option>
+        <option>Chân dung cá nhân</option>
+        <option>Khác</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Lời nhắn <span style="color:var(--red)">*</span></label>
+      <textarea id="f-msg" placeholder="Ý tưởng, địa điểm, ngày dự kiến..." required></textarea>
+    </div>
+    <button class="submit-btn" onclick="submitForm()">
+      <i class="ti ti-send"></i> Gửi yêu cầu booking
+    </button>
+    <p class="form-msg" id="form-msg"></p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">NTC</div>
+  <div class="socials">
+    <a href="https://www.facebook.com/nguyentuanchung963/" target="_blank" rel="noopener" aria-label="Facebook">
+      <i class="ti ti-brand-facebook"></i>
+    </a>
+    <a href="https://www.instagram.com/imchungg/" target="_blank" rel="noopener" aria-label="Instagram">
+      <i class="ti ti-brand-instagram"></i>
+    </a>
+    <a href="https://www.tiktok.com/@nguyentuanchung?_r=1&_t=ZS-97RQ8AmTbyJ" target="_blank" rel="noopener" aria-label="TikTok">
+      <i class="ti ti-brand-tiktok"></i>
+    </a>
+  </div>
+  <p class="f-copy">&copy; 2026 Nguyễn Tuấn Chung</p>
+</footer>
+
+<script>
+// ── Gallery data (dễ chỉnh: thêm/bỏ tên file) ──
+const GALLERY = {
+  couple:  Array.from({length: 40}, (_, i) => `images/couple/couple-${String(i+1).padStart(2,'0')}.jpg`),
+  portrait:Array.from({length: 16}, (_, i) => `images/portrait/portrait-${String(i+1).padStart(2,'0')}.jpg`),
+};
+const COUNTS = { couple: 40, portrait: 16 };
+
+// ── Build grids on load ──
+function buildGrid(files, gridId, prefix) {
+  const grid = document.getElementById(gridId);
+  files.forEach((src, i) => {
+    const div = document.createElement('div');
+    div.className = 'g-item';
+    div.onclick = () => openLb(div);
+    div.innerHTML = `<img src="${src}" loading="lazy" alt="${prefix} ${i+1}"><span class="frame-id">${prefix}·${String(i+1).padStart(2,'0')}</span>`;
+    grid.appendChild(div);
+  });
+}
+buildGrid(GALLERY.couple,   'grid-couple',   'C');
+buildGrid(GALLERY.portrait, 'grid-portrait', 'P');
+
+// ── Tabs ──
+function switchTab(btn, cat) {
+  document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + cat).classList.add('active');
+  document.getElementById('gallery-count').textContent = COUNTS[cat] + ' ảnh';
+  cacheLb();
+}
+
+// ── Lightbox ──
+let lbItems = [], lbIdx = 0;
+
+function cacheLb() {
+  lbItems = Array.from(document.querySelector('.tab-panel.active').querySelectorAll('.g-item img'));
+}
+function openLb(el) {
+  cacheLb();
+  lbIdx = lbItems.indexOf(el.querySelector('img'));
+  showLb();
+}
+function showLb() {
+  document.getElementById('lb-img').src = lbItems[lbIdx].src;
+  document.getElementById('lb-counter').textContent = (lbIdx + 1) + ' / ' + lbItems.length;
+  document.getElementById('lightbox').classList.add('open');
+}
+function lbNav(d) {
+  lbIdx = (lbIdx + d + lbItems.length) % lbItems.length;
+  showLb();
+}
+function closeLb() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')      closeLb();
+  if (e.key === 'ArrowRight')  lbNav(1);
+  if (e.key === 'ArrowLeft')   lbNav(-1);
+});
+
+// ── Smooth scroll ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ── Booking form ──
+async function submitForm() {
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const service = document.getElementById('f-service').value;
+  const msg     = document.getElementById('f-msg').value.trim();
+  const msgEl   = document.getElementById('form-msg');
+  const btn     = document.querySelector('.submit-btn');
+
+  ['f-name','f-email','f-phone','f-msg'].forEach(id => document.getElementById(id).classList.remove('error'));
+  let valid = true;
+  if (!name)  { document.getElementById('f-name').classList.add('error');  valid = false; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('f-email').classList.add('error'); valid = false; }
+  if (!phone) { document.getElementById('f-phone').classList.add('error'); valid = false; }
+  if (!msg)   { document.getElementById('f-msg').classList.add('error');   valid = false; }
+  if (!valid) { msgEl.textContent = 'Vui lòng điền đầy đủ tất cả các mục bắt buộc.'; msgEl.className = 'form-msg error'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Đang gửi...';
+  try {
+    const res = await fetch('https://formsubmit.co/ajax/nguyentuanchung963@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: name, email: email,
+        _subject: '[Portfolio] Booking từ ' + (name || email),
+        message: `Họ tên: ${name}\nEmail: ${email}\nSĐT: ${phone}\nDịch vụ: ${service}\nLời nhắn: ${msg}`
+      })
+    });
+    const data = await res.json();
+    if (data.success === 'true' || data.success === true) {
+      msgEl.textContent = '✓ Đã gửi thành công! Tuấn Chung sẽ liên hệ bạn sớm nhất.';
+      msgEl.className = 'form-msg success';
+      ['f-name','f-email','f-phone','f-msg'].forEach(id => { document.getElementById(id).value = ''; document.getElementById(id).classList.remove('error'); });
+    } else { throw new Error(); }
+  } catch {
+    const body = `Họ tên: ${name}%0AEmail: ${email}%0ASĐT: ${phone}%0ADịch vụ: ${service}%0ALời nhắn: ${msg}`;
+    window.location.href = `mailto:nguyentuanchung963@gmail.com?subject=Booking từ ${name || email}&body=${body}`;
+    msgEl.textContent = 'Đang mở ứng dụng email của bạn...';
+    msgEl.className = 'form-msg success';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-send"></i> Gửi yêu cầu booking';
+}
+
+cacheLb();
+</script>
+</body>
+</html>
